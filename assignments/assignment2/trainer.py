@@ -92,25 +92,36 @@ class Trainer:
             np.random.shuffle(shuffled_indices)
             sections = np.arange(self.batch_size, num_train, self.batch_size)
             batches_indices = np.array_split(shuffled_indices, sections)
-
+            
             batch_losses = []
-
+            
+            #print("W1[0][0].value = {}".format(self.model.params()["W1"].value[0][0]))
+            #print("W1[0][0].grad = {}".format(self.model.params()["W1"].grad[0][0]))
             for batch_indices in batches_indices:
                 # TODO Generate batches based on batch_indices and
                 # use model to generate loss and gradients for all
                 # the params
 
-                raise Exception("Not implemented!")
+                #raise Exception("Not implemented!")
+                batch_X = self.dataset.train_X[batch_indices]
+                batch_y = self.dataset.train_y[batch_indices]
+                loss = self.model.compute_loss_and_gradients(batch_X, batch_y)
 
                 for param_name, param in self.model.params().items():
                     optimizer = self.optimizers[param_name]
+                    #print("{}.value = {}".format(param_name, param.value))
+                    #print("{}.grad = {}".format(param_name, param.grad))
+                    
                     param.value = optimizer.update(param.value, param.grad, self.learning_rate)
 
                 batch_losses.append(loss)
+            #print("W1[0][0].value = {}".format(self.model.params()["W1"].value[0][0]))
+            #print("W1[0][0].grad = {}".format(self.model.params()["W1"].grad[0][0]))
 
             if np.not_equal(self.learning_rate_decay, 1.0):
                 # TODO: Implement learning rate decay
-                raise Exception("Not implemented!")
+                #raise Exception("Not implemented!")
+                self.learning_rate *= self.learning_rate_decay
 
             ave_loss = np.mean(batch_losses)
 
@@ -126,5 +137,6 @@ class Trainer:
             loss_history.append(ave_loss)
             train_acc_history.append(train_accuracy)
             val_acc_history.append(val_accuracy)
+            
 
         return loss_history, train_acc_history, val_acc_history
